@@ -1,7 +1,7 @@
-import { DDBHelper } from "../utils/ddb";
 import * as Y from "yjs";
+import { fromBase64, toBase64 } from "lib0/buffer";
 
-import { toBase64 } from "lib0/buffer";
+import { DDBHelper } from "../utils/ddb";
 
 interface ConnectionItem {
   PartitionKey: string;
@@ -77,7 +77,7 @@ export class ConnectionsTableHelper {
 
     // convert updates to an encoded array
     const updates = dbDoc.Updates.map(
-      (update) => new Uint8Array(Buffer.from(update, "base64"))
+      (update) => new Uint8Array(fromBase64(update))
     );
 
     const ydoc = new Y.Doc();
@@ -92,12 +92,13 @@ export class ConnectionsTableHelper {
     return ydoc;
   }
 
-  async updateDoc(docName: string, update: string) {
-    console.log(update);
+  async updateDoc(docName: string, update: Uint8Array) {
+    const b64Update = toBase64(update);
+    console.log(b64Update);
     return await this.DatabaseHelper.updateItemAttribute(
       docName,
       "Updates",
-      [update],
+      [b64Update],
       undefined,
       { appendToList: true }
     );
