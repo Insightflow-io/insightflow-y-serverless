@@ -21,10 +21,6 @@ provider:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-
-  
-
-environment:
     APIG_ENDPOINT:
       Fn::Join:
         - ''
@@ -33,20 +29,27 @@ environment:
           - Ref: AWS::Region
           - .amazonaws.com/
           - ${self:custom.stage}
-    CONNECTIONS_TABLE:
-      Ref: ConnectionsTable
 
-iamRoleStatements:
-  - Effect: Allow
-    Action:
-      - dynamodb:DeleteItem
-      - dynamodb:GetItem
-      - dynamodb:Scan
-      - dynamodb:PutItem
-    Resource:
-      Fn::GetAtt:
-        - YConnectionsTable
-        - Arn
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DeleteItem
+            - dynamodb:GetItem
+            - dynamodb:Scan
+            - dynamodb:PutItem
+          Resource:
+            Fn::GetAtt:
+              - YConnectionsTable
+              - Arn
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:UpdateItem
+          Resource:
+            - !Sub '${YConnectionsTable.Arn}'
+            - !Sub '${YConnectionsTable.Arn}/*'
 
 functions:
   api:
