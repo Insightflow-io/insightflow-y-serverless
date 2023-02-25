@@ -5,15 +5,7 @@ const connections_1 = require("./connections");
 const syncProtocol = require("y-protocols/sync");
 const encoding = require("lib0/encoding");
 const decoding = require("lib0/decoding");
-const buffer_1 = require("lib0/buffer");
 const Y = require("yjs");
-const getDocName = (event) => {
-    const qs = event.multiValueQueryStringParameters;
-    if (!qs || !qs.doc) {
-        throw new Error('must specify ?doc=DOC_NAME');
-    }
-    return qs.doc[0];
-};
 const messageSync = 0;
 const messageAwareness = 1;
 class YSockets {
@@ -36,27 +28,25 @@ class YSockets {
         await ct.removeConnection(connectionId);
         console.log(`${connectionId} disconnected`);
     }
-    async onMessage(connectionId, b64Message, send) {
+    async onMessage(connectionId, message, send) {
         const { ct } = this;
-        let messageArray = buffer_1.fromBase64(b64Message);
         const docName = (await ct.getConnection(connectionId)).DocName;
         const connectionIds = await ct.getConnectionIds(docName);
-        const otherConnectionIds = connectionIds.filter(id => id !== connectionId);
+        const otherConnectionIds = connectionIds.filter((id) => id !== connectionId);
         const broadcast = (message) => {
-            return Promise.all(otherConnectionIds.map(id => {
-                return send(id, buffer_1.toBase64(message));
+            return Promise.all(otherConnectionIds.map((id) => {
+                return send(id, message);
             }));
         };
         const doc = await ct.getOrCreateDoc(docName);
         const encoder = encoding.createEncoder();
-        const decoder = decoding.createDecoder(messageArray);
+        const decoder = decoding.createDecoder(message);
         const messageType = decoding.readVarUint(decoder);
         switch (messageType) {
             // Case sync1: Read SyncStep1 message and reply with SyncStep2 (send doc to client wrt state vector input)
             // Case sync2 or yjsUpdate: Read and apply Structs and then DeleteStore to a y instance (append to db, send to all clients)
             case messageSync:
                 encoding.writeVarUint(encoder, messageSync);
-                // syncProtocol.readSyncMessage
                 const messageType = decoding.readVarUint(decoder);
                 switch (messageType) {
                     case syncProtocol.messageYjsSyncStep1:
@@ -66,18 +56,18 @@ class YSockets {
                     case syncProtocol.messageYjsUpdate:
                         const update = decoding.readVarUint8Array(decoder);
                         Y.applyUpdate(doc, update);
-                        await ct.updateDoc(docName, buffer_1.toBase64(update));
-                        await broadcast(messageArray);
+                        await broadcast(message);
+                        await ct.updateDoc(docName, update);
                         break;
                     default:
-                        throw new Error('Unknown message type');
+                        throw new Error("Unknown message type");
                 }
                 if (encoding.length(encoder) > 1) {
-                    await send(connectionId, buffer_1.toBase64(encoding.toUint8Array(encoder)));
+                    await send(connectionId, encoding.toUint8Array(encoder));
                 }
                 break;
             case messageAwareness: {
-                await broadcast(messageArray);
+                await broadcast(message);
                 break;
             }
         }

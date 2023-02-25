@@ -1,4 +1,4 @@
-import * as Y from 'yjs';
+import * as Y from "yjs";
 interface ConnectionItem {
     PartitionKey: string;
     DocName: string;
@@ -13,6 +13,6 @@ export declare class ConnectionsTableHelper {
     removeConnection(id: string): Promise<boolean>;
     getConnectionIds(docName: string): Promise<string[]>;
     getOrCreateDoc(docName: string): Promise<Y.Doc>;
-    updateDoc(docName: string, update: string): Promise<any>;
+    updateDoc(docName: string, update: Uint8Array): Promise<any>;
 }
 export {};
