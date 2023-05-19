@@ -16,7 +16,7 @@ plugins:
 provider:
   name: aws
   region: eu-west-2
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:

@@ -10,6 +10,7 @@ const ySockets = new YSockets();
 const connectedClients = {};
 
 wss.on('connection', (ws, req) => {
+  console.log('connection')
   const sendToClient = async (name:string, message:Uint8Array) =>{
       if( connectedClients[name]){
         connectedClients[name].send(toBase64(message));
@@ -28,7 +29,7 @@ wss.on('connection', (ws, req) => {
   ws.on('message', message => {
     console.log(message.toString());
     // message is b64 string
-    //console.log(`Received message => ${fromBase64(message.toString())}`)
+    console.log(`Received message => ${fromBase64(message.toString())}`)
     ySockets.onMessage(clientName, fromBase64(message.toString()), sendToClient);
     //ws.send(`Sent updates to peers`)
     console.log("Sending updates to peers")

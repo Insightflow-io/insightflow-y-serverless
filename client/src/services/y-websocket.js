@@ -50,50 +50,50 @@ const readMessage = (provider, buf, emitSynced) => {
   const encoder = encoding.createEncoder()
   const messageType = decoding.readVarUint(decoder)
   switch (messageType) {
-  case messageSync: {
-    encoding.writeVarUint(encoder, messageSync)
-    const syncMessageType = syncProtocol.readSyncMessage(
-      decoder,
-      encoder,
-      provider.doc,
-      provider
-    )
-    if (
-      emitSynced &&
+    case messageSync: {
+      encoding.writeVarUint(encoder, messageSync)
+      const syncMessageType = syncProtocol.readSyncMessage(
+        decoder,
+        encoder,
+        provider.doc,
+        provider
+      )
+      if (
+        emitSynced &&
         syncMessageType === syncProtocol.messageYjsSyncStep2 &&
         !provider.synced
-    ) {
-      provider.synced = true
+      ) {
+        provider.synced = true
+      }
+      break
     }
-    break
-  }
-  case messageQueryAwareness:
-    encoding.writeVarUint(encoder, messageAwareness)
-    encoding.writeVarUint8Array(
-      encoder,
-      awarenessProtocol.encodeAwarenessUpdate(
-        provider.awareness,
-        Array.from(provider.awareness.getStates().keys())
+    case messageQueryAwareness:
+      encoding.writeVarUint(encoder, messageAwareness)
+      encoding.writeVarUint8Array(
+        encoder,
+        awarenessProtocol.encodeAwarenessUpdate(
+          provider.awareness,
+          Array.from(provider.awareness.getStates().keys())
+        )
       )
-    )
-    break
-  case messageAwareness:
-    awarenessProtocol.applyAwarenessUpdate(
-      provider.awareness,
-      decoding.readVarUint8Array(decoder),
-      provider
-    )
-    break
-  case messageAuth:
-    authProtocol.readAuthMessage(
-      decoder,
-      provider.doc,
-      permissionDeniedHandler
-    )
-    break
-  default:
-    console.error('Unable to compute message')
-    return encoder
+      break
+    case messageAwareness:
+      awarenessProtocol.applyAwarenessUpdate(
+        provider.awareness,
+        decoding.readVarUint8Array(decoder),
+        provider
+      )
+      break
+    case messageAuth:
+      authProtocol.readAuthMessage(
+        decoder,
+        provider.doc,
+        permissionDeniedHandler
+      )
+      break
+    default:
+      console.error('Unable to compute message')
+      return encoder
   }
   return encoder
 }
@@ -112,6 +112,7 @@ const setupWS = (provider) => {
 
     websocket.onmessage = (event) => {
       provider.wsLastMessageReceived = time.getUnixTime()
+      console.log('event in y-websocket', event)
 
       if (typeof event.data !== 'string') return
 
@@ -159,7 +160,7 @@ const setupWS = (provider) => {
         setupWS,
         math.min(
           math.log10(provider.wsUnsuccessfulReconnects + 1) *
-            reconnectTimeoutBase,
+          reconnectTimeoutBase,
           maxReconnectTimeout
         ),
         provider
@@ -358,7 +359,7 @@ export class WebsocketProvider extends Observable {
       if (
         this.wsconnected &&
         messageReconnectTimeout <
-          time.getUnixTime() - this.wsLastMessageReceived
+        time.getUnixTime() - this.wsLastMessageReceived
       ) {
         // no message received in a long time - not even your own awareness
         // updates (which are updated every 15 seconds)
@@ -387,7 +388,7 @@ export class WebsocketProvider extends Observable {
 
   destroy() {
     if (this._resyncInterval !== 0) {
-      clearInterval(/** @type {NodeJS.Timeout} */ (this._resyncInterval))
+      clearInterval(/** @type {NodeJS.Timeout} */(this._resyncInterval))
     }
     clearInterval(this._checkInterval)
     this.disconnect()

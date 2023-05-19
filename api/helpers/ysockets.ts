@@ -13,6 +13,9 @@ export class YSockets {
 
   async onConnection(connectionId: string, docName: string) {
     const { ct } = this;
+    console.log('connectionTableHelper', ct);
+    console.log('connectionId', connectionId);
+    console.log('docName', docName)
     await ct.createConnection(connectionId, docName);
     const doc = await ct.getOrCreateDoc(docName);
     const encoder = encoding.createEncoder();
@@ -39,6 +42,7 @@ export class YSockets {
   ) {
     const { ct } = this;
 
+    console.log('ConnectionID in ysockets', connectionId)
     const docName = (await ct.getConnection(connectionId)).DocName;
     const connectionIds = await ct.getConnectionIds(docName);
     const otherConnectionIds = connectionIds.filter(

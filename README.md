@@ -21,7 +21,7 @@ npm install
 npm run start
  ```
 
- Spins up a local server on `ws://localhost:5000`
+ Spins up a local server on `ws://localhost:8080`
 
 ### Deploy to AWS
 ```

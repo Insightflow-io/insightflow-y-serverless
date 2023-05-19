@@ -41,10 +41,12 @@ export async function handler(event) {
 
   const { body, requestContext: { connectionId, routeKey }} = event;
   const ysockets = new YSockets();
+  console.log('ysockets in Index', ysockets)
 
   switch(routeKey) {
     case '$connect':{
       const docName = getDocName(event)
+      console.log('connect Docname', docName)
       await ysockets.onConnection(connectionId, docName)
       return { statusCode: 200, body: 'Connected.' }
     } 
@@ -54,7 +56,8 @@ export async function handler(event) {
     }
     case '$default':
     default:
-      await ysockets.onMessage(connectionId, fromBase64(body), send)
+      console.log('connectionId in main', connectionId)
+      await ysockets.onMessage(connectionId, fromBase64(body), send).catch(e => console.log(e))
       return { statusCode: 200, body: 'Data Sent' };
     
   }

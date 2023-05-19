@@ -8,6 +8,7 @@ const wss = new WebSocket.Server({ port: 5000 });
 const ySockets = new ysockets_1.default();
 const connectedClients = {};
 wss.on('connection', (ws, req) => {
+    console.log('connection');
     const sendToClient = async (name, message) => {
         if (connectedClients[name]) {
             connectedClients[name].send(buffer_1.toBase64(message));
@@ -21,7 +22,7 @@ wss.on('connection', (ws, req) => {
     ws.on('message', message => {
         console.log(message.toString());
         // message is b64 string
-        //console.log(`Received message => ${fromBase64(message.toString())}`)
+        console.log(`Received message => ${buffer_1.fromBase64(message.toString())}`);
         ySockets.onMessage(clientName, buffer_1.fromBase64(message.toString()), sendToClient);
         //ws.send(`Sent updates to peers`)
         console.log("Sending updates to peers");

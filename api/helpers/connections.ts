@@ -36,10 +36,12 @@ export class ConnectionsTableHelper {
       await this.DatabaseHelper.queryItemByKey<ConnectionItem>(id);
 
     if (connections && connections.length > 0) {
+      console.log('DDB Connected')
       return connections[0];
     }
 
     if (!connections || connections.length === 0) {
+      console.log('Error Connecting', id)
       await this.removeConnection(id);
       throw undefined;
     }

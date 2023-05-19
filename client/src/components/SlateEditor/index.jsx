@@ -27,7 +27,7 @@ const HOTKEYS = {
 
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 
-const YJS_ENDPOINT = 'ws://localhost:5000'
+const YJS_ENDPOINT = 'wss://g7vs5k7dh2.execute-api.eu-west-2.amazonaws.com/dev'
 
 const clientName = Math.random().toString(36).substr(2, 20)
 
@@ -41,7 +41,7 @@ const SlateEditor = () => {
     const sharedType = doc.getArray('content')
     const provider = new WebsocketProvider(YJS_ENDPOINT, `?=${storedValue}&`, doc, {params:{name:clientName}})
     return [sharedType, provider]
-  }, [])
+  }, [storedValue])
 
   const editor = useMemo(() => {
     const editor = withYjs(
@@ -50,7 +50,7 @@ const SlateEditor = () => {
     )
 
     return editor
-  }, [])
+  }, [sharedType])
 
   const color = useMemo(
     () =>
@@ -71,7 +71,7 @@ const SlateEditor = () => {
   const { decorate } = useCursor(editor, provider.awareness, cursorOptions)
 
   const renderElement = useCallback(props => <Element {...props} />, [])
-  const renderLeaf = useCallback((props) => <Leaf {...props} />, [decorate])
+  const renderLeaf = useCallback((props) => <Leaf {...props} />,[decorate] )
 
   useEffect(() => {
     provider.on('status', ({ status }) => {
@@ -92,7 +92,7 @@ const SlateEditor = () => {
     return () => {
       provider.disconnect()
     }
-  }, [])
+  }, [provider, sharedType])
 
   return (
     <ExampleContent>

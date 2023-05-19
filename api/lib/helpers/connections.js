@@ -20,9 +20,11 @@ class ConnectionsTableHelper {
     async getConnection(id) {
         const connections = await this.DatabaseHelper.queryItemByKey(id);
         if (connections && connections.length > 0) {
+            console.log('DDB Connected');
             return connections[0];
         }
         if (!connections || connections.length === 0) {
+            console.log('Error Connecting', id);
             await this.removeConnection(id);
             throw undefined;
         }

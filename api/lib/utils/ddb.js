@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DDBHelper = void 0;
 const AWS = require('aws-sdk');
 AWS.config.update({
-    region: 'us-east-1',
+    region: 'eu-west-2',
 });
 class DDBHelper {
     constructor(helperOptions) {
