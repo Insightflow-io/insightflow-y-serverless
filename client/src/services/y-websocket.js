@@ -268,8 +268,10 @@ export class WebsocketProvider extends Observable {
       '/' +
       roomname +
       (encodedParams.length === 0 ? '' : '?' + encodedParams)
+    console.log('this.url', this.url)
     this.roomname = roomname
     this.doc = doc
+    console.log('this.doc', this.doc)
     this._WS = WebSocketPolyfill
     this.awareness = awareness
     this.wsconnected = false
